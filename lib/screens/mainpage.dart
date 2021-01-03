@@ -134,6 +134,7 @@ class _MainPageState extends State<MainPage> {
                     SizedBox(height: 5,),
 
                     Text('Nice to see you',style: TextStyle(fontSize: 10),),
+
                     Text('Where are you going',style: TextStyle(fontSize: 18,),),
 
                     SizedBox(height: 10,),
