@@ -10,7 +10,6 @@ class CountryPicker extends StatefulWidget {
   final Color headerBackgroundColor;
   final Color headerTextColor;
   bool isInit = true;
-
   @override
   _CountryPickerState createState() => _CountryPickerState();
 }

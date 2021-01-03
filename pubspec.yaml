@@ -41,6 +41,14 @@ dependencies:
   numeric_keyboard: ^1.0.0
   pin_entry_text_field: ^0.1.4
 
+  google_maps_flutter: ^1.0.6
+  maps_launcher: ^1.2.2+2
+  geolocator: ^5.1.5
+  intl: ^0.16.0
+  outline_material_icons: ^0.1.1
+  brand_colors: ^0.0.3
+
+
 
 
 

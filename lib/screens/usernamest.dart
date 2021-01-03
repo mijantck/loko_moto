@@ -14,7 +14,7 @@ class UserNamePage extends StatefulWidget {
 }
 
 class _UserNamePageState extends State<UserNamePage> {
-
+  TextEditingController _name = TextEditingController();
   String um,uid,una,username;
 
   @override
@@ -28,55 +28,63 @@ class _UserNamePageState extends State<UserNamePage> {
                     padding: EdgeInsets.only(left: 25.0, right: 25.0),
                     child: TextFormField(
                       decoration: InputDecoration(
-                        hintText: 'Name ',
+                        hintText: 'Enter Name ',
                         border: OutlineInputBorder(),
                       ),
+                      controller: _name,
                       onChanged: (val) {
                         setState(() {
                           this.username = val;
-                        });
+                        }
+                        );
                       },
                     )),
 
-                RaisedButton(
-                  child: Text('Submit'),
-                  onPressed: () {
+               Container(
+                 margin: EdgeInsets.all(10),
+                 width: 200.0,
+                 height: 45,
+                 child:OutlineButton(
+                   child: Text('SUBMIT',style :TextStyle(color: Colors.blue)),
+                   onPressed: () {
 
-                    if(username.length <1){
+                     if(_name.text.length < 1){
 
-                      Fluttertoast.showToast(
-                          msg: "Enter your name",
-                          toastLength: Toast.LENGTH_SHORT,
-                          gravity: ToastGravity.CENTER,
-                          timeInSecForIosWeb: 1,
-                          backgroundColor: Colors.red,
-                          textColor: Colors.white,
-                          fontSize: 16.0
-                      );
+                       Fluttertoast.showToast(
+                           msg: "Enter your name",
+                           toastLength: Toast.LENGTH_SHORT,
+                           gravity: ToastGravity.CENTER,
+                           timeInSecForIosWeb: 1,
+                           backgroundColor: Colors.red,
+                           textColor: Colors.white,
+                           fontSize: 16.0
+                       );
                        return;
-                    }
+                     }
 
-                    final FirebaseAuth auth = FirebaseAuth.instance;
-                    final User user = auth.currentUser;
-                    final uid = user.uid;
-                    final uphone = user.phoneNumber.toString();
+                     final FirebaseAuth auth = FirebaseAuth.instance;
+                     final User user = auth.currentUser;
+                     final uid = user.uid;
+                     final uphone = user.phoneNumber.toString();
 
 
-                    DatabaseReference dbRef = FirebaseDatabase.instance.reference().child('users/${uid}');
+                     DatabaseReference dbRef = FirebaseDatabase.instance.reference().child('users/${uid}');
 
-                    Map userMap = {
-                      'fullname': username,
-                      'phone': uphone,
-                    };
-                    dbRef.set(userMap);
+                     Map userMap = {
+                       'fullname': username,
+                       'phone': uphone,
+                     };
+                     dbRef.set(userMap);
 
-                    Navigator.pushAndRemoveUntil(
-                        context,
-                        MaterialPageRoute(builder: (context) => MainPage()),
-                            (route) => false);
-                    // AuthService().signOut();
-                  },
-                ),
+                     Navigator.pushAndRemoveUntil(
+                         context,
+                         MaterialPageRoute(builder: (context) => MainPage()),
+                             (route) => false);
+                     // AuthService().signOut();
+                   },
+                 ),
+               )
+
               ],
             )
 

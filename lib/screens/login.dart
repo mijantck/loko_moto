@@ -46,9 +46,6 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text('Phone Auth'),
-      ),
       body: Column(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
@@ -66,41 +63,64 @@ class _LoginScreenState extends State<LoginScreen> {
 
             Container(
               margin: EdgeInsets.only(top: 40, right: 10, left: 10),
-              child: TextField(
-                decoration: InputDecoration(
-                  hintText: 'Phone Number',
-                  prefix: Padding(
-                    padding: EdgeInsets.all(4),
-                    child:CountryPicker(
-                      callBackFunction: _callBackFunction,
-                      headerText: 'Select Country',
-                      headerBackgroundColor: Theme.of(context).primaryColor,
-                      headerTextColor: Colors.white,
+                padding: const EdgeInsets.all(16.0),
+                decoration: BoxDecoration(
+                    color: Colors.white,
+                    // ignore: prefer_const_literals_to_create_immutables
+                    boxShadow: [
+                      const BoxShadow(
+                        color: Colors.grey,
+                        offset: Offset(0.0, 1.0), //(x,y)
+                        blurRadius: 6.0,
+                      ),
+                    ],
+                    borderRadius: BorderRadius.circular(16.0)),
+              child:Row(
+                children: [
+                  CountryPicker(
+                    callBackFunction: _callBackFunction,
+                    headerText: 'Select Country',
+                    headerBackgroundColor: Theme.of(context).primaryColor,
+                    headerTextColor: Colors.white,
+                  ),
+                  SizedBox(width:3.0,),
+                  Expanded(
+                    child: TextField(
+                      decoration: const InputDecoration(
+                        hintText: 'Contact Number',
+                        border: InputBorder.none,
+                        enabledBorder: InputBorder.none,
+                        focusedBorder: InputBorder.none,
+                        contentPadding: EdgeInsets.symmetric(vertical: 13.5),
+                      ),
+                      controller: _controller,
+                      keyboardType: TextInputType.number,
                     ),
                   ),
-                ),
-                maxLength: 10,
-                keyboardType: TextInputType.number,
-                controller: _controller,
-              ),
+                 /* TextField(
+                    keyboardType: TextInputType.number,
+                    controller: _controller,
+                  ),*/
+
+                ],
+              )
 
             )
           ]),
+
+
           Container(
             margin: EdgeInsets.all(10),
             width: double.infinity,
-            child:
-            FlatButton(
-              color: Colors.blue,
+            height: 45,
+            child: OutlinedButton(
               onPressed: () {
                 Navigator.of(context).push(MaterialPageRoute(
                     builder: (context) => OTPScreen(_dialCode+''+_controller.text)));
+                // Respond to button press
               },
-              child: Text(
-                'Next',
-                style: TextStyle(color: Colors.white),
-              ),
-            ),
+              child: Text("GET OTP",),
+            )
           )
         ],
       ),

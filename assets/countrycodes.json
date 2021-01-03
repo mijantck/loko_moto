@@ -1,5 +1,10 @@
 [
   {
+    "name": "Bangladesh",
+    "dial_code": "+880",
+    "code": "BD"
+  },
+  {
     "name": "Afghanistan",
     "dial_code": "+93",
     "code": "AF"
