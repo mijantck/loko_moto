@@ -1,13 +1,69 @@
 import 'package:brand_colors/brand_colors.dart';
 import 'package:flutter/material.dart';
+import 'package:loko_moto/dataProvider/appData.dart';
+import 'package:loko_moto/datamodels/prediction.dart';
+import 'package:loko_moto/globalvariable.dart';
+import 'package:loko_moto/helpers/requesthelper.dart';
+import 'package:loko_moto/widget/BrandDivider.dart';
+import 'package:loko_moto/widget/PredictionTile.dart';
+import 'package:provider/provider.dart';
 class SearchPage extends StatefulWidget {
   @override
   _SearchPageState createState() => _SearchPageState();
 }
 
 class _SearchPageState extends State<SearchPage> {
+  var picupColtroller  = TextEditingController();
+  var destinationColtroller  = TextEditingController();
+  var destinationFocus = FocusNode();
+
+  bool focus = false;
+  void setFucos(){
+    if(!focus){
+      FocusScope.of(context).requestFocus(destinationFocus);
+      focus = true;
+    }
+  }
+
+  List<Prediction> destinationPredictionList = [];
+
+  void searchPlace(String placeName) async {
+    if (placeName.length > 1) {
+
+      String url = 'https://maps.googleapis.com/maps/api/place/autocomplete/json?input=$placeName&key=$mapkey&sessiontoken=1234567890&components=country:bd';
+
+      var respons = await RequestHelper.getRequest(url);
+      if(respons == 'failed'){
+        return;
+      }
+
+
+
+      if(respons['status'] =='OK'){
+
+        var predictionJson = respons['predictions'];
+        var thisList = (predictionJson as List).map((e) => Prediction.fromJson(e)).toList();
+        setState(() {
+          destinationPredictionList = thisList;
+          print('fild');
+        });
+
+      }
+
+
+    }
+  }
+
+
+
   @override
   Widget build(BuildContext context) {
+
+    String address = Provider.of<AppData>(context).picukAddress.placeName ?? '';
+    picupColtroller.text = address;
+
+    setFucos();
+
     return Scaffold(
       body: Column(
         children: <Widget> [
@@ -61,6 +117,7 @@ class _SearchPageState extends State<SearchPage> {
                           child: Padding(
                             padding: EdgeInsets.all(2.0),
                             child: TextField(
+                              controller: picupColtroller,
                               decoration: InputDecoration(
                                 hintText: 'Pickup Location ',
                                 fillColor: Colors.black12,
@@ -91,6 +148,11 @@ class _SearchPageState extends State<SearchPage> {
                           child: Padding(
                             padding: EdgeInsets.all(2.0),
                             child: TextField(
+                              onChanged: (value){
+                                searchPlace(value);
+                              },
+                              focusNode: destinationFocus,
+                              controller: destinationColtroller,
                               decoration: InputDecoration(
                                 hintText: 'Where to?',
                                 fillColor: Colors.black12,
@@ -98,7 +160,6 @@ class _SearchPageState extends State<SearchPage> {
                                 border: InputBorder.none,
                                 isDense: true,
                                 contentPadding: EdgeInsets.only(left: 10,top: 8,bottom: 8),
-
                               ),
                             ),
                           ),
@@ -112,11 +173,26 @@ class _SearchPageState extends State<SearchPage> {
                 ],
               ),
             )
+          ),
 
+      (destinationPredictionList.length > 0) ?
+              ListView.separated(
+                itemBuilder: (context,index){
+                  return PredictionTile(
+                    prediction: destinationPredictionList[index],
+                  );
+                },
+                separatorBuilder: (BuildContext context, int index) =>BrandDivider(),
+                itemCount: destinationPredictionList.length,
+                shrinkWrap: true,
+                physics: ClampingScrollPhysics(),
+              )
+              :Container(),
 
-          )
         ],
       ),
     );
   }
 }
+
+
