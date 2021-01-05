@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:loko_moto/dataProvider/appData.dart';
 import 'package:loko_moto/screens/mainpage.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_database/firebase_database.dart';
@@ -7,6 +8,7 @@ import 'dart:async';
 import 'dart:io' show Platform;
 
 import 'package:loko_moto/services/authservice.dart';
+import 'package:provider/provider.dart';
 
 
 Future<void> main() async {
@@ -40,12 +42,18 @@ class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
-      ),
-      home: AuthService().handleAuth(),
+
+    return ChangeNotifierProvider(
+        create: (context) => AppData(),
+        child:  MaterialApp(
+    theme: ThemeData(
+    primarySwatch: Colors.blue,
+
+    ),
+    home: AuthService().handleAuth(),
+    ),
     );
+
   }
 }
 

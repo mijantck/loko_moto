@@ -37,7 +37,6 @@ dependencies:
   pinput: ^0.2.6
   mobx: ^1.1.1
   flutter_mobx: ^1.1.0
-  provider: ^4.0.4
   numeric_keyboard: ^1.0.0
   pin_entry_text_field: ^0.1.4
 
@@ -48,6 +47,9 @@ dependencies:
   intl: ^0.16.0
   outline_material_icons: ^0.1.1
   brand_colors: ^0.0.3
+  http: ^0.12.2
+  connectivity: ^2.0.2
+  provider: ^4.3.2+3
 
 
 

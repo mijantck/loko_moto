@@ -4,11 +4,16 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:loko_moto/dataProvider/appData.dart';
+import 'package:loko_moto/helpers/helperMethods.dart';
+import 'package:loko_moto/screens/searchpage.dart';
 import 'package:loko_moto/style/styles.dart';
 import 'package:loko_moto/widget/BrandDivider.dart';
 import 'package:outline_material_icons/outline_material_icons.dart';
 import 'package:brand_colors/brand_colors.dart';
 import 'dart:io';
+
+import 'package:provider/provider.dart';
 
 
 
@@ -39,6 +44,12 @@ class _MainPageState extends State<MainPage> {
     LatLng pos = LatLng(position.latitude, position.longitude);
     CameraPosition cp = new CameraPosition(target: pos, zoom: 14);
     mapController.animateCamera(CameraUpdate.newCameraPosition(cp));
+
+    print('${position.latitude} mm ${position.longitude}');
+    String address = await HelperMethods.findCordinateAddress(position,context);
+
+   // print(address);
+
   }
 
   static final CameraPosition _kGooglePlex = CameraPosition(
@@ -138,33 +149,45 @@ class _MainPageState extends State<MainPage> {
                     Text('Where are you going',style: TextStyle(fontSize: 18,),),
 
                     SizedBox(height: 10,),
-                    Container(
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(4),
-                        boxShadow: [BoxShadow(
-                            color: Colors.black12,
-                            blurRadius: 5.0,
-                            spreadRadius: 0.5,
-                            offset: Offset(
-                              0.7,
-                              0.7
-                            )
-                          )
-                        ]
-                      ),
-                      child: Padding(
-                        padding: EdgeInsets.all(12.0),
-                        child:  Row(
-                          children: <Widget> [
-                            Icon(Icons.search,color: Colors.blueAccent,),
-                            Text('Search Destination',),
 
-                          ],
-                        ),
-                      )
+                    GestureDetector(
+                      onTap: (){
+                        Navigator.push(context,MaterialPageRoute(
+
+                          builder: (context) => SearchPage(),
+                        ));
+                      },
+                      child:Container(
+                          decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(4),
+                              boxShadow: [BoxShadow(
+                                  color: Colors.black12,
+                                  blurRadius: 5.0,
+                                  spreadRadius: 0.5,
+                                  offset: Offset(
+                                      0.7,
+                                      0.7
+                                  )
+                              )
+                              ]
+                          ),
+                          child: Padding(
+                            padding: EdgeInsets.all(12.0),
+                            child:  Row(
+                              children: <Widget> [
+                                Icon(Icons.search,color: Colors.blueAccent,),
+                                Text('Search Destination',),
+
+                              ],
+                            ),
+                          )
+                      ),
                     ),
+
+
                     SizedBox(height: 10,),
+
                     Row(
                       children: [
                         Icon(OMIcons.home,color: Colors.black26,),
@@ -172,13 +195,16 @@ class _MainPageState extends State<MainPage> {
                         Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text('Add Home'),
+                            Text((Provider.of<AppData>(context).picukAddress != null)
+                            ? Provider.of<AppData>(context).picukAddress.placeName
+                            : 'Add Home'),
                             SizedBox(height: 3,),
                             Text('Your residential address',style: TextStyle(fontSize: 11, color: BrandColors.appleBlack),)
                           ],
                         )
                       ],
                     ),
+
                     SizedBox(height: 5,),
                     BrandDivider(),
                     SizedBox(height: 5),
