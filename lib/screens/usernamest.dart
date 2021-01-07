@@ -69,7 +69,6 @@ class _UserNamePageState extends State<UserNamePage> {
 
 
                      DatabaseReference dbRef = FirebaseDatabase.instance.reference().child('users/${uid}');
-
                      Map userMap = {
                        'fullname': username,
                        'phone': uphone,

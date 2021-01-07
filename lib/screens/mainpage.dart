@@ -1,5 +1,6 @@
 import 'dart:async';
-
+import 'package:animated_text_kit/animated_text_kit.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_polyline_points/flutter_polyline_points.dart';
@@ -14,11 +15,14 @@ import 'package:loko_moto/style/styles.dart';
 import 'package:loko_moto/widget/BrandDivider.dart';
 import 'package:loko_moto/widget/TaxiButton.dart';
 import 'package:loko_moto/widget/progressDialog.dart';
+import 'package:firebase_database/firebase_database.dart';
 import 'package:outline_material_icons/outline_material_icons.dart';
 import 'package:brand_colors/brand_colors.dart';
 import 'dart:io';
-
+import 'package:loko_moto/datamodels/user.dart';
 import 'package:provider/provider.dart';
+import '../globalvariable.dart';
+
 
 
 
@@ -35,11 +39,13 @@ class _MainPageState extends State<MainPage> with TickerProviderStateMixin {
 
   double searchSheetHight =(Platform.isIOS) ? 300 : 275;
   double rideDetailsSheetHeight = 0;
+  double requestingSheetHeight = 0; // (Platform.isAndroid) ? 195 : 220
 
 
   Completer<GoogleMapController> _controller = Completer();
   GoogleMapController mapController;
   double mapBottomPadding = 0;
+
   List<LatLng> polylineCoordinates = [];
   Set<Polyline> _polylines = {};
   Set<Marker> _Markers = {};
@@ -50,6 +56,8 @@ class _MainPageState extends State<MainPage> with TickerProviderStateMixin {
   DirectionDetails tripDirectionDetails;
 
   bool drawerCanOpen = true;
+
+  DatabaseReference rideRef;
 
 
   void setUpLoaction() async {
@@ -64,13 +72,8 @@ class _MainPageState extends State<MainPage> with TickerProviderStateMixin {
     String address = await HelperMethods.findCordinateAddress(position,context);
 
    // print(address);
-
   }
 
-  static final CameraPosition _kGooglePlex = CameraPosition(
-    target: LatLng(37.42796133580664, -122.085749655962),
-    zoom: 14.4746,
-  );
 
   void showDetailSheet () async {
     await getDirection();
@@ -81,6 +84,23 @@ class _MainPageState extends State<MainPage> with TickerProviderStateMixin {
       rideDetailsSheetHeight = (Platform.isAndroid) ? 235 : 260;
       drawerCanOpen = false;
     });
+  }
+  void showRequestingSheet(){
+    setState(() {
+      rideDetailsSheetHeight = 0;
+      requestingSheetHeight = (Platform.isAndroid) ? 195 : 220;
+      mapBottomPadding = (Platform.isAndroid) ? 200 : 190;
+      drawerCanOpen = true;
+    });
+    createRideRequest();
+  }
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    print('mijan');
+    HelperMethods.getCurrentUserInfo();
   }
 
 
@@ -95,7 +115,7 @@ class _MainPageState extends State<MainPage> with TickerProviderStateMixin {
             padding: EdgeInsets.only(bottom: mapBottomPadding),
             myLocationButtonEnabled: false,
             mapType: MapType.normal,
-            initialCameraPosition: _kGooglePlex,
+            initialCameraPosition: GooglePlex,
             myLocationEnabled: true,
             zoomGesturesEnabled: true,
             zoomControlsEnabled: true,
@@ -121,7 +141,12 @@ class _MainPageState extends State<MainPage> with TickerProviderStateMixin {
 
               child: GestureDetector(
                 onTap: (){
-                  scaffoldKey.currentState.openDrawer();
+                  if(drawerCanOpen){
+                    scaffoldKey.currentState.openDrawer();
+                  }
+                  else{
+                    resetApp();
+                  }
                 },
                 child:  Container(
                   decoration: BoxDecoration(
@@ -142,7 +167,7 @@ class _MainPageState extends State<MainPage> with TickerProviderStateMixin {
                   child: CircleAvatar(
                     backgroundColor: Colors.white,
                     radius: 20,
-                    child: Icon(Icons.menu,color: Colors.black26,),
+                    child: Icon((drawerCanOpen) ? Icons.menu : Icons.arrow_back, color: Colors.black87,),
 
                   ),
                 ) ,
@@ -270,9 +295,6 @@ class _MainPageState extends State<MainPage> with TickerProviderStateMixin {
                   )
               ),
     ),
-
-
-
           ),
           /// RideDetails Sheet
           Positioned(
@@ -322,8 +344,9 @@ class _MainPageState extends State<MainPage> with TickerProviderStateMixin {
 
                                 ],
                               ),
-                              Expanded(child: Container(),),
-                              Text('\$32', style: TextStyle(fontSize: 16),)
+                              Expanded(child: Container()),
+                              Text((tripDirectionDetails != null) ? '\$${HelperMethods.estimateFares(tripDirectionDetails)}' : '', style: TextStyle(fontSize: 18, fontFamily: 'Brand-Bold'),),
+
                             ],
                           ),
                         ),
@@ -353,7 +376,7 @@ class _MainPageState extends State<MainPage> with TickerProviderStateMixin {
                           title: 'REQUEST CAB',
                           color: Colors.greenAccent,
                           onPressed: (){
-
+                            showRequestingSheet();
                           },
                         ),
                       )
@@ -364,6 +387,94 @@ class _MainPageState extends State<MainPage> with TickerProviderStateMixin {
               ),
             ),
           ),
+          /// Request Sheet
+          Positioned(
+            left: 0,
+            right: 0,
+            bottom: 0,
+            child: AnimatedSize(
+              vsync: this,
+              duration: new Duration(milliseconds: 150),
+              curve: Curves.easeIn,
+              child: Container(
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.only(topLeft: Radius.circular(15), topRight: Radius.circular(15)),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black26,
+                      blurRadius: 15.0, // soften the shadow
+                      spreadRadius: 0.5, //extend the shadow
+                      offset: Offset(
+                        0.7, // Move to right 10  horizontally
+                        0.7, // Move to bottom 10 Vertically
+                      ),
+                    )
+                  ],
+                ),
+                height: requestingSheetHeight,
+                child: Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 24, vertical: 18),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: <Widget>[
+
+                      SizedBox(height: 10,),
+
+                      SizedBox(
+                        width: double.infinity,
+                        child: TextLiquidFill(
+                          text: 'Requesting a Ride...',
+                          waveColor: BrandColors.tacoBellBlack,
+                          boxBackgroundColor: Colors.white,
+                          textStyle: TextStyle(
+                              color: Colors.grey,
+                              fontSize: 22.0,
+                              fontFamily: 'Brand-Bold'
+                          ),
+                          boxHeight: 40.0,
+                        ),
+                      ),
+
+                      SizedBox(height: 20,),
+
+                      GestureDetector(
+                        onTap: (){
+                          cancelRequest();
+                          resetApp();
+                        },
+                        child: Container(
+                          height: 50,
+                          width: 50,
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(25),
+                            border: Border.all(width: 1.0, color: Colors.grey),
+
+                          ),
+                          child: Icon(Icons.close, size: 25,),
+                        ),
+                      ),
+
+                      SizedBox(height: 10,),
+
+                      Container(
+                        width: double.infinity,
+                        child: Text(
+                          'Cancel ride',
+                          textAlign: TextAlign.center,
+                          style: TextStyle(fontSize: 12),
+                        ),
+                      ),
+
+
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ),
+
 
         ],
       ),
@@ -449,7 +560,9 @@ class _MainPageState extends State<MainPage> with TickerProviderStateMixin {
 
     var thisDetails = await HelperMethods.getDirectionDetails(pickLatLng, destinationLatLng);
 
-
+    setState(() {
+      tripDirectionDetails = thisDetails;
+    });
 
     PolylinePoints polylinePoints = PolylinePoints();
     List<PointLatLng> results = polylinePoints.decodePolyline(thisDetails.encodedPoints);
@@ -547,4 +660,99 @@ class _MainPageState extends State<MainPage> with TickerProviderStateMixin {
     });
 
   }
+  resetApp(){
+
+    setState(() {
+
+      polylineCoordinates.clear();
+      _polylines.clear();
+      _Markers.clear();
+      _Circles.clear();
+      rideDetailsSheetHeight = 0;
+      requestingSheetHeight = 0;
+      searchSheetHight = (Platform.isAndroid) ? 275 : 300;
+      mapBottomPadding = (Platform.isAndroid) ? 280 : 270;
+      drawerCanOpen = true;
+    });
+
+    setUpLoaction();
+
+
+
+  }
+
+  void createRideRequest() {
+
+    final FirebaseAuth auth = FirebaseAuth.instance;
+    final User user = auth.currentUser;
+    final uid = user.uid;
+
+
+    String name ='';
+    String phone ='';
+
+    DatabaseReference userRef = FirebaseDatabase.instance.reference().child('users/$uid');
+
+    userRef.once().then((DataSnapshot snapshot){
+
+      if(snapshot.value == null){
+        cancelRequest();
+        resetApp();
+        return;
+      }
+      if(snapshot.value != null){
+        phone = snapshot.value['phone'];
+        name = snapshot.value['fullname'];
+      }
+
+      rideRef = FirebaseDatabase.instance.reference().child('rideRequest').push();
+
+      var pickup = Provider
+          .of<AppData>(context, listen: false)
+          .picukAddress;
+      var destination = Provider
+          .of<AppData>(context, listen: false)
+          .destinationkAddress;
+
+
+      Map pickupMap = {
+        'latitude': pickup.latitude.toString(),
+        'longitude': pickup.longitude.toString(),
+      };
+
+      Map destinationMap = {
+        'latitude': destination.latitude.toString(),
+        'longitude': destination.longitude.toString(),
+      };
+
+
+      Map rideMap = {
+        'created_at': DateTime.now().toString(),
+        'rider_name': name,
+        'rider_phone': phone,
+        'pickup_address': pickup.placeName,
+        'destination_address': destination.placeName,
+        'location': pickupMap,
+        'destination': destinationMap,
+        'payment_method': 'card',
+        'driver_id': 'waiting',
+      };
+      rideRef.set(rideMap);
+
+
+    });
+
+    print('mmm $phone');
+
+
+
+
+  }
+
+  void cancelRequest(){
+    rideRef.remove();
+
+  }
+
+
 }

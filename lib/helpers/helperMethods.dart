@@ -1,4 +1,6 @@
 import 'package:connectivity/connectivity.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_database/firebase_database.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:loko_moto/dataProvider/appData.dart';
@@ -7,9 +9,26 @@ import 'package:loko_moto/datamodels/directiondetails.dart';
 import 'package:loko_moto/globalvariable.dart';
 import 'package:loko_moto/helpers/requesthelper.dart';
 import 'package:provider/provider.dart';
+import 'package:loko_moto/datamodels/user.dart';
 
 class HelperMethods{
 
+  static void getCurrentUserInfo() async{
+
+    final FirebaseAuth auth = FirebaseAuth.instance;
+    final User user = auth.currentUser;
+    String userid = user.uid;
+
+    DatabaseReference userRef = FirebaseDatabase.instance.reference().child('users/$userid');
+    userRef.once().then((DataSnapshot snapshot){
+
+      if(snapshot.value != null){
+        currentUserInfos = Users.fromSnapshot(snapshot);
+        print('my name is ${currentUserInfos.fullName}');
+      }
+
+    });
+  }
 
  static Future<String> findCordinateAddress(Position position, context) async{
 
@@ -58,6 +77,20 @@ class HelperMethods{
    directionDetails.encodedPoints = response['routes'][0]['overview_polyline']['points'];
 
    return directionDetails;
+ }
+
+ static int estimateFares (DirectionDetails details){
+   // per km = $0.3,
+   // per minute = $0.2,
+   // base fare = $3,
+
+   double baseFare = 3;
+   double distanceFare = (details.distanceValue/1000) * 0.3;
+   double timeFare = (details.durationValue / 60) * 0.2;
+
+   double totalFare = baseFare + distanceFare + timeFare;
+
+   return totalFare.truncate();
  }
 
 }
