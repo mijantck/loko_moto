@@ -1,3 +1,6 @@
+import 'dart:convert';
+import 'dart:math';
+
 import 'package:connectivity/connectivity.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
@@ -9,6 +12,7 @@ import 'package:loko_moto/datamodels/directiondetails.dart';
 import 'package:loko_moto/globalvariable.dart';
 import 'package:loko_moto/helpers/requesthelper.dart';
 import 'package:provider/provider.dart';
+import 'package:http/http.dart' as http;
 import 'package:loko_moto/datamodels/user.dart';
 
 class HelperMethods{
@@ -93,4 +97,55 @@ class HelperMethods{
    return totalFare.truncate();
  }
 
+  static double generateRandomNumber(int max){
+
+    var randomGenerator = Random();
+    int randInt = randomGenerator.nextInt(max);
+
+    return randInt.toDouble();
+  }
+
+  static sendNotification(String token, context, String ride_id) async {
+
+    var destination = Provider.of<AppData>(context, listen: false).destinationkAddress;
+
+    print('token: ${token}');
+
+    Map<String, String> headerMap = {
+      'Content-Type': 'application/json',
+      'Authorization': 'key=AAAAxgU5z4M:APA91bGZmrxAraPBLXqRBZuPborVJpxSTWwhG8BE3zyecehEcOKr_mck_xcYFBPb_Tgue47KXYrbqT1Niu-c3rEdK6vivTsAtho1P59H6jHFoRw1jBoI-LyWfvFi-790AiSd9x5YKVSj',
+    };
+
+    Map notificationMap = {
+      'title': 'NEW TRIP REQUEST',
+      'body': 'Destination, ${destination.placeName}'
+    };
+
+    Map dataMap = {
+      'click_action': 'FLUTTER_NOTIFICATION_CLICK',
+      'id': '1',
+      'status': 'done',
+      'ride_id' : ride_id,
+    };
+
+    Map bodyMap = {
+      'notification': notificationMap,
+      'data': dataMap,
+      'priority': 'high',
+      'to': token
+    };
+
+    var response = await http.post(
+        'https://fcm.googleapis.com/fcm/send',
+        headers: headerMap,
+        body: jsonEncode(bodyMap)
+    );
+
+    print(token);
+    print(response.body);
+
+
+  }
+
 }
+
