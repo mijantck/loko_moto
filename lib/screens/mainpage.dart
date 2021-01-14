@@ -326,6 +326,7 @@ class _MainPageState extends State<MainPage> with TickerProviderStateMixin {
                         GestureDetector(
                           onTap: () async {
 
+
                             var response = await  Navigator.push(context, MaterialPageRoute(
                                 builder: (context)=> SearchPage()
                             ));
@@ -451,18 +452,18 @@ class _MainPageState extends State<MainPage> with TickerProviderStateMixin {
                             padding: EdgeInsets.symmetric(horizontal: 16),
                             child: Row(
                               children: <Widget>[
-                                Image.asset('images/taxi.png', height: 70, width: 70,),
+                                Image.asset('images/motorcycle.png', height: 70, width: 70,),
                                 SizedBox(width: 16,),
                                 Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: <Widget>[
-                                    Text('Taxi', style: TextStyle(fontSize: 18, fontFamily: 'Brand-Bold'),),
+                                    Text('Baeyer ', style: TextStyle(fontSize: 18, fontFamily: 'Brand-Bold'),),
                                     Text((tripDirectionDetails != null) ? tripDirectionDetails.distanceText : '', style: TextStyle(fontSize: 16, color: BrandColors.colorTextLight),)
 
                                   ],
                                 ),
                                 Expanded(child: Container()),
-                                Text((tripDirectionDetails != null) ? '\$${HelperMethods.estimateFares(tripDirectionDetails)}' : '', style: TextStyle(fontSize: 18, fontFamily: 'Brand-Bold'),),
+                                Text((tripDirectionDetails != null) ? '৳ ${HelperMethods.estimateFares(tripDirectionDetails)}' : '', style: TextStyle(fontSize: 18, fontFamily: 'Brand-Bold'),),
 
                               ],
                             ),
@@ -486,19 +487,16 @@ class _MainPageState extends State<MainPage> with TickerProviderStateMixin {
                         ),
 
                         SizedBox(height: 22,),
-
                         Padding(
                           padding: EdgeInsets.symmetric(horizontal: 16),
                           child: TaxiButton(
-                            title: 'REQUEST CAB',
+                            title: 'REQUEST BIKE',
                             color: BrandColors.colorGreen,
                             onPressed: (){
-
                               setState(() {
                                 appState = 'REQUESTING';
                               });
                               showRequestingSheet();
-
                               availableDrivers = FireHelper.nearbyDriverList;
 
                               findDriver();

@@ -89,7 +89,7 @@ class HelperMethods{
    // base fare = $3,
 
    double baseFare = 3;
-   double distanceFare = (details.distanceValue/1000) * 0.3;
+   double distanceFare = (details.distanceValue/1000) * 5;
    double timeFare = (details.durationValue / 60) * 0.2;
 
    double totalFare = baseFare + distanceFare + timeFare;

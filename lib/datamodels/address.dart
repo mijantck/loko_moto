@@ -1,6 +1,4 @@
-
-
- class Address{
+class Address{
   String placeName;
   double latitude;
   double longitude;
