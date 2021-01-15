@@ -144,6 +144,22 @@ class _MainPageState extends State<MainPage> with TickerProviderStateMixin {
     }
   }
 
+  String pUrl = 'https://i.ibb.co/vvkJF5X/simpline.png';
+  String pName = 'User name';
+
+  void infoCheck(){
+    setState(() {
+      if(currentUserInfos.imageURL != null && currentUserInfos.fullName != null){
+        pUrl = currentUserInfos.imageURL;
+        pName = currentUserInfos.fullName;
+        print("murl ${currentUserInfos.imageURL}");
+      }else{
+
+      }
+    });
+
+  }
+
   @override
   void initState() {
     // TODO: implement initState
@@ -182,8 +198,7 @@ class _MainPageState extends State<MainPage> with TickerProviderStateMixin {
                       ),
                       child: Row(
                         children: <Widget>[
-                          Image.network((currentUserInfos.imageURL != null)?currentUserInfos.imageURL:'images/user_icon.png',
-
+                          Image.network(pUrl,
                             height: 60, width: 60,),
                           SizedBox(width: 15,),
                           Column(
@@ -192,7 +207,7 @@ class _MainPageState extends State<MainPage> with TickerProviderStateMixin {
                             children: <Widget>[
                               Container(
                                 padding: EdgeInsets.all(10),
-                                child: Text((currentUserInfos.fullName != null)?currentUserInfos.fullName:"Name",
+                                child: Text(pName,
                                   overflow: TextOverflow.ellipsis,),
 
                               ),
@@ -260,8 +275,8 @@ class _MainPageState extends State<MainPage> with TickerProviderStateMixin {
                 setState(() {
                   mapBottomPadding = (Platform.isAndroid) ? 280 : 270;
                 });
-
                 setupPositionLocator();
+                infoCheck();
               },
             ),
 
@@ -972,6 +987,7 @@ class _MainPageState extends State<MainPage> with TickerProviderStateMixin {
       'created_at': DateTime.now().toString(),
       'rider_name':  currentUserInfos.fullName,
       'rider_phone': currentUserInfos.phone,
+      'rider_URL': currentUserInfos.imageURL,
       'pickup_address' : pickup.placeName,
       'destination_address': destination.placeName,
       'location': pickupMap,
