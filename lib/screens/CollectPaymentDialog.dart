@@ -28,15 +28,9 @@ class CollectPayment extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: <Widget>[
-
             SizedBox(height: 20,),
-
             Text('${paymentMethod.toUpperCase()} PAYMENT'),
-
             SizedBox(height: 20,),
-
-
-
             SizedBox(height: 16.0,),
 
             Text('\$$fares', style: TextStyle(fontFamily: 'Brand-Bold', fontSize: 50),),
@@ -53,14 +47,12 @@ class CollectPayment extends StatelessWidget {
             Container(
               width: 230,
               child: TaxiButton(
-                title: (paymentMethod == 'cash') ? 'COLLECT CASH' : 'CONFIRM',
+                title: 'CONFIRM',
+               // title: (paymentMethod == 'cash') ? 'COLLECT CASH' : 'CONFIRM',
                 color: Colors.green,
                 onPressed: (){
-
                   Navigator.pop(context);
                   Navigator.pop(context);
-
-
                 },
               ),
             ),

@@ -72,6 +72,7 @@ class _UserNamePageState extends State<UserNamePage> {
                      Map userMap = {
                        'fullname': username,
                        'phone': uphone,
+                       'imageURI': 'https://i.ibb.co/vvkJF5X/simpline.png',
                      };
                      dbRef.set(userMap);
 

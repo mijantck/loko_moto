@@ -28,7 +28,7 @@ class HelperMethods{
 
       if(snapshot.value != null){
         currentUserInfos = Users.fromSnapshot(snapshot);
-        print('my name is ${currentUserInfos.fullName}');
+
       }
 
     });

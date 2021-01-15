@@ -14,6 +14,7 @@ import 'package:loko_moto/datamodels/nearbydriver.dart';
 import 'package:loko_moto/helpers/firehelper.dart';
 import 'package:loko_moto/helpers/helperMethods.dart';
 import 'package:loko_moto/helpers/userinfo.dart';
+import 'package:loko_moto/screens/ProfilePage.dart';
 import 'package:loko_moto/screens/searchpage.dart';
 import 'package:loko_moto/style/styles.dart';
 import 'package:loko_moto/widget/BrandDivider.dart';
@@ -24,6 +25,7 @@ import 'package:outline_material_icons/outline_material_icons.dart';
 import 'dart:io';
 import 'package:loko_moto/datamodels/user.dart';
 import 'package:provider/provider.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../brand_colors.dart';
 import '../globalvariable.dart';
 import '../rideVaribles.dart';
@@ -164,32 +166,47 @@ class _MainPageState extends State<MainPage> with TickerProviderStateMixin {
             child: ListView(
               padding: EdgeInsets.all(0),
               children: <Widget>[
+                GestureDetector(
+                  onTap: (){
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => ProfilePage()),
+                    );
+                  },
+                  child: Container(
+                    color: Colors.white,
+                    height: 160,
+                    child: DrawerHeader(
+                      decoration: BoxDecoration(
+                          color: Colors.white
+                      ),
+                      child: Row(
+                        children: <Widget>[
+                          Image.network((currentUserInfos.imageURL != null)?currentUserInfos.imageURL:'images/user_icon.png',
 
-                Container(
-                  color: Colors.white,
-                  height: 160,
-                  child: DrawerHeader(
-                    decoration: BoxDecoration(
-                        color: Colors.white
-                    ),
-                    child: Row(
-                      children: <Widget>[
-                        Image.asset('images/user_icon.png', height: 60, width: 60,),
-                        SizedBox(width: 15,),
+                            height: 60, width: 60,),
+                          SizedBox(width: 15,),
+                          Column(
 
-                        Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: <Widget>[
-                            Text('Uchenna', style: TextStyle(fontSize: 20, fontFamily: 'Brand-Bold'),),
-                            SizedBox(height: 5,),
-                            Text('View Profile'),
-                          ],
-                        )
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: <Widget>[
+                              Container(
+                                padding: EdgeInsets.all(10),
+                                child: Text((currentUserInfos.fullName != null)?currentUserInfos.fullName:"Name",
+                                  overflow: TextOverflow.ellipsis,),
 
-                      ],
+                              ),
+                                 SizedBox(height: 5,),
+                              Text('View Profile'),
+                            ],
+                          )
+
+                        ],
+                      ),
                     ),
                   ),
                 ),
+
                 BrandDivider(),
 
                 SizedBox(height: 10,),
@@ -325,8 +342,6 @@ class _MainPageState extends State<MainPage> with TickerProviderStateMixin {
 
                         GestureDetector(
                           onTap: () async {
-
-
                             var response = await  Navigator.push(context, MaterialPageRoute(
                                 builder: (context)=> SearchPage()
                             ));
@@ -665,25 +680,28 @@ class _MainPageState extends State<MainPage> with TickerProviderStateMixin {
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                           children: [
-
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.center,
-                              children: [
-
-                                Container(
-                                  height: 50,
-                                  width: 50,
-                                  decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.all(Radius.circular((25))),
-                                    border: Border.all(width: 1.0, color: BrandColors.colorTextLight),
+                            GestureDetector(
+                              onTap: () async {
+                                launch(('tel://${driverPhoneNumber}'));
+                              },
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                children: [
+                                  Container(
+                                    height: 50,
+                                    width: 50,
+                                    decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.all(Radius.circular((25))),
+                                      border: Border.all(width: 1.0, color: BrandColors.colorTextLight),
+                                    ),
+                                    child: Icon(Icons.call),
                                   ),
-                                  child: Icon(Icons.call),
-                                ),
 
-                                SizedBox(height: 10,),
+                                  SizedBox(height: 10,),
 
-                                Text('Call'),
-                              ],
+                                  Text('Call'),
+                                ],
+                              ),
                             ),
 
                             Column(
